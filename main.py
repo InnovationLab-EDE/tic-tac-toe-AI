@@ -1,36 +1,60 @@
-import os
-import sys
+# (linha, coluna)
+limit = (3, 3)
+bord = [' ', 'X', 'O']
+dashboard = []
 
-dashboard =[[0, 0, 0],
-            [0, 0, 0],  
-            [0, 0, 0]]
+def isTurnValid(point: list):    
+    if len(point) != 2:
+        return False    
+    
+    for i in range(2):        
+        if point[i] <= 0 or point[i] > limit[i]:
+            return False
+        
+    if dashboard[point[0] - 1][point[1] - 1] > 0:
+        return False
+    
+    return True
 
-def playerTurn(jogador):
-    if jogador == 1:
-        print('Vez do player 1')
-        posicaoJogada = list(map(int, input("Informe a posicao que vc quer jogar (i,j): ").split()))
-    else:
-        print('Vez do player 2')
-        posicaoJogada = list(map(int, input("Informe a posicao que vc quer jogar (i,j): ").split()))
-    return posicaoJogada
+def playerTurn(jogador):        
+    print('Vez do player ', jogador, '(', bord[jogador], ')', sep='') 
 
+    point = []    
+    msg = "Informe a posicao (linha, coluna)(1..{lin}, 1..{col}): ".format(lin = limit[0], col =limit[1])
+
+    while not isTurnValid(point):
+        point = list(map(int, input(msg).split()))        
+        
+    return (point[0] - 1, point[1] - 1)
+
+    
 def marcaJogada(jogador, posicao):
     dashboard[posicao[0]][posicao[1]] = jogador
 
-def main():
-    count = 0
-    while True:
-        jogador = 2
-        if count % 2 == 0:
-            jogador = 1
+def criarBord():
+    dashboard.clear
+    for i in range(limit[0]):
+        dashboard.append([0] * limit[1])
+
+def draw():        
+    for i in range(len(dashboard)):
+        print('|', end='')
+        for j in range(len(dashboard[i])): 
+            print(bord[dashboard[i][j]], end='|')
+        print()       
         
-        for i in range(3):
-            for j in range(3):
-                print(dashboard[i][j], end='|')
-            print()
+
+def main():    
+    criarBord()
+
+    jogador = 1
+    while True:   
+        draw()
+        
         jogada = playerTurn(jogador)
         marcaJogada(jogador, jogada)
-        count += 1
+        jogador = jogador ^ 3
 
 
-main()
+if __name__ == '__main__':
+    main()
