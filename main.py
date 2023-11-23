@@ -1,9 +1,16 @@
-# (linha, coluna)
+import tkinter as tk
+from tkinter import messagebox
+
 limit = (3, 3)
 bord = [' ', 'X', 'O']
 dashboard = []
 
-def isTurnValid(point: list):
+def criarBord():
+    dashboard.clear()
+    for i in range(limit[0]):
+        dashboard.append([0] * limit[1])
+
+def isTurnValid(point):
     if len(point) != 2:
         return False
 
@@ -16,32 +23,8 @@ def isTurnValid(point: list):
 
     return True
 
-def playerTurn(jogador):
-    print('Vez do player ', jogador, '(', bord[jogador], ')', sep='')
-
-    point = []
-    msg = "Informe a posicao (linha, coluna)(1..{lin}, 1..{col}): ".format(lin = limit[0], col =limit[1])
-
-    while not isTurnValid(point):
-        point = list(map(int, input(msg).split()))
-    
-    return (point[0] - 1, point[1] - 1)
-
-
 def marcaJogada(jogador, posicao):
     dashboard[posicao[0]][posicao[1]] = jogador
-
-def criarBord():
-    dashboard.clear
-    for i in range(limit[0]):
-        dashboard.append([0] * limit[1])
-
-def draw():
-    for i in range(len(dashboard)):
-        print('|', end='')
-        for j in range(len(dashboard[i])):
-            print(bord[dashboard[i][j]], end='|')
-        print()
 
 def validaVitoria(jogador, jogada):
     horizontal = [dashboard[jogada[0]][0], dashboard[jogada[0]][1], dashboard[jogada[0]][2]]
@@ -80,27 +63,56 @@ def validaVitoria(jogador, jogada):
 
     return result
 
+def draw():
+    # lógica para desenhar o tabuleiro (mantida como está)
+    for i in range(len(dashboard)):
+        print('|', end='')
+    for j in range(len(dashboard[i])):
+        print(bord[dashboard[i][j]], end='|')
+    print()
 
-def main():
-    criarBord()
-    jogadas = 9
+def on_click(row, col):
 
-    jogador = 1
-    while jogadas > 0:
-        draw()
+    global jogador, jogadas
 
-        jogada = playerTurn(jogador)
-        jogadas = jogadas - 1
-        marcaJogada(jogador, jogada)
-        if validaVitoria(jogador, jogada):
-            draw()
-            print('Player ', jogador, 'ganhou')
-            break
+    if isTurnValid([row + 1, col + 1]):
+        marcaJogada(jogador, [row, col])
+        buttons[row * 3 + col].config(text=bord[jogador])
+        if validaVitoria(jogador, [row, col]):
+            messagebox.showinfo("Fim de jogo", f"Player {jogador} ganhou!")
+            reiniciar_jogo()
+            return
         jogador = jogador ^ 3
+        jogadas -= 1
+        if jogadas == 0:
+            messagebox.showinfo("Fim de jogo", "Deu velha!")
+            reiniciar_jogo()
 
-    else:
-        draw()
-        print("Deu velha")
+def reiniciar_jogo():
+    global jogador, jogadas
+    criarBord()
+    jogador = 1
+    jogadas = 9
+    for button in buttons:
+        button.config(text=' ', state=tk.NORMAL)
 
-if __name__ == '__main__':
-    main()
+def create_board():
+    global buttons
+    buttons = []
+    for i in range(3):
+        for j in range(3):
+            button = tk.Button(root, text=' ', font=('Arial', 20), width=5, height=2,
+                                command=lambda row=i, col=j: on_click(row, col))
+            button.grid(row=i, column=j)
+            buttons.append(button)
+
+root = tk.Tk()
+root.title("Jogo da Velha")
+
+jogador = 1
+jogadas = 9
+
+create_board()
+criarBord()
+
+root.mainloop()
