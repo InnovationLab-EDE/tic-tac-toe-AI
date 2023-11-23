@@ -24,7 +24,7 @@ def playerTurn(jogador):
 
     while not isTurnValid(point):
         point = list(map(int, input(msg).split()))
-
+    
     return (point[0] - 1, point[1] - 1)
 
 
@@ -80,14 +80,17 @@ def validaVitoria(jogador, jogada):
 
     return result
 
+
 def main():
     criarBord()
+    jogadas = 9
 
     jogador = 1
-    while True:
+    while jogadas > 0:
         draw()
 
         jogada = playerTurn(jogador)
+        jogadas = jogadas - 1
         marcaJogada(jogador, jogada)
         if validaVitoria(jogador, jogada):
             draw()
@@ -95,6 +98,9 @@ def main():
             break
         jogador = jogador ^ 3
 
+    else:
+        draw()
+        print("Deu velha")
 
 if __name__ == '__main__':
     main()
